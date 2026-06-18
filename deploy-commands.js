@@ -1,43 +1,61 @@
-require("dotenv").config();
-
-const { REST, Routes, SlashCommandBuilder } = require("discord.js");
-
 const commands = [
   new SlashCommandBuilder()
     .setName("اسكت")
     .setDescription("إسكات عضو لمدة محددة")
-    .addUserOption(option =>
-      option
-        .setName("العضو")
-        .setDescription("العضو المراد إسكاته")
-        .setRequired(true)
+    .addUserOption(o =>
+      o.setName("العضو").setDescription("العضو").setRequired(true)
     )
-    .addStringOption(option =>
-      option
-        .setName("المدة")
-        .setDescription("مثال: 10m أو 1h أو 2d")
-        .setRequired(true)
+    .addStringOption(o =>
+      o.setName("المدة").setDescription("مثال: 10m 1h 2d").setRequired(true)
     )
-    .addStringOption(option =>
-      option
-        .setName("السبب")
-        .setDescription("سبب الإسكات")
-        .setRequired(false)
+    .addStringOption(o =>
+      o.setName("السبب").setDescription("سبب الإسكات")
     )
     .toJSON(),
-];
 
-const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
+  new SlashCommandBuilder()
+    .setName("فك")
+    .setDescription("فك الإسكات عن عضو")
+    .addUserOption(o =>
+      o.setName("العضو").setDescription("العضو").setRequired(true)
+    )
+    .toJSON(),
 
-(async () => {
-  try {
-    await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID),
-      { body: commands }
+  if (interaction.commandName === "تحذير") {
+  const member = interaction.options.getMember("العضو");
+
+  if (!member) {
+    return interaction.reply({ content: "ما لقيت العضو", ephemeral: true });
+  }
+
+  const id = member.id;
+  const count = (warnings.get(id) || 0) + 1;
+  warnings.set(id, count);
+
+  const muteRole = interaction.guild.roles.cache.find(r => r.name === "Muted");
+
+  // ================= التحذير الأول =================
+  if (count === 1) {
+    return interaction.reply(
+      `⚠️ ${member} انتبه لا تعيدها`
+    );
+  }
+
+  // ================= التحذير الثاني =================
+  if (count >= 2) {
+    warnings.set(id, 0);
+
+    if (muteRole) {
+      await member.roles.add(muteRole);
+    }
+
+    await interaction.reply(
+      `🔇 ${member} تم إسكاتك بسبب تكرار المخالفة`
     );
 
-    console.log("تم تسجيل الأوامر");
-  } catch (error) {
-    console.error(error);
+    // منشن عام للسيرفر
+    await interaction.channel.send(
+      `🚨 ${member} عضه وعبره لمن لا يتعض أو يعتبر`
+    );
   }
-})();
+}
