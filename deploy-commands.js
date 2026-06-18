@@ -5,11 +5,11 @@ const { REST, Routes, SlashCommandBuilder } = require("discord.js");
 const commands = [
   new SlashCommandBuilder()
     .setName("اسكت")
-    .setDescription("إعطاء تايم أوت لعضو")
+    .setDescription("إسكات عضو لمدة محددة")
     .addUserOption(option =>
       option
         .setName("العضو")
-        .setDescription("اختر العضو")
+        .setDescription("العضو المراد إسكاته")
         .setRequired(true)
     )
     .addStringOption(option =>
@@ -21,7 +21,7 @@ const commands = [
     .addStringOption(option =>
       option
         .setName("السبب")
-        .setDescription("سبب الاسكات  ")
+        .setDescription("سبب الإسكات")
         .setRequired(false)
     )
     .toJSON(),
@@ -31,14 +31,12 @@ const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    console.log("جاري تسجيل الأوامر...");
-
     await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID),
       { body: commands }
     );
 
-    console.log("تم تسجيل الأوامر بنجاح.");
+    console.log("تم تسجيل الأوامر");
   } catch (error) {
     console.error(error);
   }
