@@ -18,8 +18,8 @@ client.once("ready", () => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
-  if (message.content === "سلام") {
-    message.reply("وعليكم السلام 🌹");
+  if (message.content === "السلام عليكم") {
+    message.reply("وعليكم السلام ");
   }
 
   if (message.content === "بنج") {
